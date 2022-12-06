@@ -64,18 +64,4 @@ export class HumanodeStrategy<User> extends OAuth2Strategy<
       scope: this.scope.join(" "),
     });
   }
-
-  // TODO: consider comment/remove this because it's same as parent?
-  protected async getAccessToken(response: Response): Promise<{
-    accessToken: string;
-    refreshToken: string;
-    extraParams: HumanodeExtraParams;
-  }> {
-    let { access_token, refresh_token, ...extraParams } = await response.json();
-    return {
-      accessToken: access_token as string,
-      refreshToken: refresh_token as string,
-      extraParams,
-    } as const;
-  }
 }
