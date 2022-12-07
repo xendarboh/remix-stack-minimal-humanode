@@ -23,6 +23,12 @@ npx create-remix --template xendarboh/remix-stack-minimal-humanode
   npx remix init
   ```
 
+- Copy `env` config file from the example and customize. Current values work for local development:
+
+  ```sh
+  cp .env.example .env
+  ```
+
 - Start dev server:
 
   ```sh
