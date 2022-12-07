@@ -1,26 +1,21 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 import { useLoaderData } from "@remix-run/react";
 
-import type { AuthenticatedUser } from "~/auth.server";
 import { requireAuthenticatedUser } from "~/auth.server";
 
-type LoaderData = {
-  auth: AuthenticatedUser;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderArgs) {
   const auth = await requireAuthenticatedUser(request);
   return { auth };
-};
+}
 
 export default function Dashboard() {
-  const { auth } = useLoaderData() as LoaderData;
+  const { auth } = useLoaderData<typeof loader>();
 
   return (
     <div>
       <h1 className="text-2xl font-bold">
-        Welcome to Dashboard... you auth'd user!
+        Welcome to the Dashboard... you auth'd user!
       </h1>
       <h3>humanode identifer = {auth.id}</h3>
       <br />

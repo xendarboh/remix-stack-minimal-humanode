@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 
@@ -11,7 +11,7 @@ type LoaderData = {
   error?: { message: string };
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderArgs) {
   const auth = await authenticator.isAuthenticated(request);
 
   // check for an error in the session "flash" message
@@ -44,15 +44,21 @@ export const loader: LoaderFunction = async ({ request }) => {
       },
     }
   );
-};
+}
 
 export default function Login() {
   const data = useLoaderData() as LoaderData;
+
   return (
-    <div>
-      {data.error && <span>{data.error?.message}</span>}
+    <div className="flex h-screen flex-col items-center justify-center space-y-6">
+      {data.error && (
+        <div className="font-bold text-red-500">{data.error?.message}</div>
+      )}
       <Form action="/auth/humanode" method="post">
-        <button>Bioauthenticate with HUMΔNODE</button>
+        <button className="rounded border border-gray-700 bg-gray-200 px-2 py-2 font-medium text-black hover:bg-gray-300">
+          Crypto-Biometric Authentication
+          <img src="/humanode-350x250.png" alt="" />
+        </button>
       </Form>
     </div>
   );
