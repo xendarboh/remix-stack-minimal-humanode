@@ -73,6 +73,15 @@ const humanodeStrategy = new HumanodeStrategy(
 
 authenticator.use(humanodeStrategy, "humanode");
 
+// Note: Potentially Dangerous! For development, hack authenticated user to bypass bioauth.
+const isDevUser = () => {
+  if (process.env.NODE_ENV === "development") {
+    const hackUserId = process.env.DEV_HACK_AUTHENTICATED_USER;
+    if (hackUserId && +hackUserId > 0) return true;
+  }
+  return false;
+};
+
 export async function requireAuthenticatedUser(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
@@ -80,18 +89,17 @@ export async function requireAuthenticatedUser(
   const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
   const failureRedirect = `/login?${searchParams.toString()}`;
 
-  // // Note: Potentially Dangerous! For development, hack authenticated user to bypass bioauth.
-  // if (process.env.NODE_ENV === "development") {
-  //   const hackUserId = process.env.DEV_HACK_AUTHENTICATED_USER;
-  //   if (hackUserId && +hackUserId > 0) {
-  //     const filler = "XXXXXXXX";
-  //     return {
-  //       id: filler,
-  //       jwt: filler,
-  //       // user: { id: +hackUserId, bioid: filler },
-  //     };
-  //   }
-  // }
+  if (isDevUser()) {
+    const filler = "XXXXXXXX";
+    return {
+      id: filler,
+      jwt: filler,
+      // user: {
+      //   id: +process.env.DEV_HACK_AUTHENTICATED_USER ?? 0,
+      //   bioid: filler,
+      // },
+    };
+  }
 
   const auth = await authenticator.isAuthenticated(request, {
     failureRedirect,
@@ -119,6 +127,12 @@ export async function requireAuthenticatedUser(
   }
 
   return auth;
+}
+
+export async function isAuthenticated(request: Request): Promise<boolean> {
+  const auth = await authenticator.isAuthenticated(request);
+  if (isDevUser()) return true;
+  return auth !== null;
 }
 
 export const logout = async (request: Request, redirectTo = "/") =>
